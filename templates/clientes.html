@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes | Sur Prevención</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f6fafd; margin: 0; }
+        .container { max-width: 800px; margin: 36px auto; background: #fff; border-radius: 14px; padding: 28px 34px; box-shadow: 0 0 16px #bbdefb; }
+        h2 { color: #005b96; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th, td { padding: 10px; border-bottom: 1px solid #e0e0e0; text-align: left; }
+        th { background: #e3f2fd; }
+        .btn { background: #005b96; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; text-decoration: none; }
+        .top-actions { display: flex; justify-content: space-between; margin-bottom: 16px; }
+        .nav { margin-bottom: 12px; }
+        .nav a { text-decoration: none; color: #005b96; margin-right: 18px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="{{ url_for('dashboard') }}">🏠 Panel</a>
+            <a href="{{ url_for('cotizaciones') }}">Cotizaciones</a>
+            <a href="{{ url_for('finanzas') }}">Finanzas</a>
+            <a href="{{ url_for('perfil') }}">Mi perfil</a>
+        </div>
+        <h2>Clientes</h2>
+        <div class="top-actions">
+            <a href="{{ url_for('agregar_cliente') }}" class="btn">+ Nuevo cliente</a>
+            <a href="{{ url_for('dashboard') }}" class="btn" style="background:#8bc34a;">Volver al panel</a>
+        </div>
+        <table>
+            <tr>
+                <th>Nombre/Razón Social</th>
+                <th>RUT</th>
+                <th>Contacto</th>
+                <th>Dirección</th>
+            </tr>
+            {% for c in clientes %}
+            <tr>
+                <td>{{ c.nombre }}</td>
+                <td>{{ c.rut }}</td>
+                <td>{{ c.contacto }}</td>
+                <td>{{ c.direccion }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
