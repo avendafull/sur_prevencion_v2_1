@@ -89,3 +89,9 @@ def perfil():
 @login_required
 def hospedaje():
     return render_template('hospedaje.html')
+
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
