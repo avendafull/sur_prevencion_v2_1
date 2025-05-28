@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Movimiento | Sur Prevención</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #eafaf6; margin: 0; }
+        .container { max-width: 420px; margin: 44px auto; background: #fff; border-radius: 14px; padding: 30px 38px; box-shadow: 0 0 12px #bbdefb; }
+        h2 { color: #005b96; }
+        form input, form select { width: 100%; padding: 9px; margin: 10px 0; border: 1px solid #b0bec5; border-radius: 5px; }
+        button { background: #005b96; color: #fff; border: none; border-radius: 5px; padding: 10px 16px; width: 100%; margin-top: 8px; }
+        .nav { margin-bottom: 18px; }
+        .nav a { text-decoration: none; color: #005b96; margin-right: 18px; font-weight: bold; }
+        .flash { color: #d32f2f; margin-bottom: 8px; }
+        label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="{{ url_for('finanzas') }}">← Volver a finanzas</a>
+        </div>
+        <h2>Nuevo movimiento</h2>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash">{{ messages[0] }}</div>
+          {% endif %}
+        {% endwith %}
+        <form method="post">
+            <label>Fecha</label>
+            <input type="date" name="fecha" required>
+            <label>Tipo</label>
+            <select name="tipo" required>
+                <option value="">Selecciona tipo</option>
+                <option value="Ingreso">Ingreso</option>
+                <option value="Gasto">Gasto</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Depósito">Depósito</option>
+            </select>
+            <label>Descripción</label>
+            <input type="text" name="descripcion" placeholder="Detalle">
+            <label>Monto</label>
+            <input type="number" name="monto" min="0" required>
+            <button type="submit">Guardar movimiento</button>
+        </form>
+    </div>
+</body>
+</html>
