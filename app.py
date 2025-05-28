@@ -69,3 +69,23 @@ def logout():
 @login_required
 def clientes():
     return render_template('clientes.html')
+
+@app.route('/cotizaciones')
+@login_required
+def cotizaciones():
+    return render_template('cotizaciones.html')
+
+@app.route('/finanzas')
+@login_required
+def finanzas():
+    return render_template('finanzas.html')
+
+@app.route('/perfil')
+@login_required
+def perfil():
+    return render_template('perfil.html')
+
+@app.route('/hospedaje')
+@login_required
+def hospedaje():
+    return render_template('hospedaje.html')
