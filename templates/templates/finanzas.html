@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Finanzas | Sur Prevención</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f8fdf7; margin: 0; }
+        .container { max-width: 900px; margin: 36px auto; background: #fff; border-radius: 14px; padding: 34px 36px; box-shadow: 0 0 16px #bbdefb; }
+        h2 { color: #005b96; }
+        table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        th, td { padding: 9px; border-bottom: 1px solid #e0e0e0; text-align: left; }
+        th { background: #e3f2fd; }
+        .btn { background: #005b96; color: #fff; border: none; padding: 8px 15px; border-radius: 5px; text-decoration: none; }
+        .top-actions { display: flex; justify-content: space-between; margin-bottom: 16px; }
+        .nav { margin-bottom: 14px; }
+        .nav a { text-decoration: none; color: #005b96; margin-right: 18px; font-weight: bold; }
+        .summary { background: #e6f4ea; border-radius: 8px; padding: 10px 16px; margin: 12px 0 18px 0; display: flex; gap: 25px; }
+        .summary span { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="{{ url_for('dashboard') }}">🏠 Panel</a>
+            <a href="{{ url_for('clientes') }}">Clientes</a>
+            <a href="{{ url_for('cotizaciones') }}">Cotizaciones</a>
+            <a href="{{ url_for('perfil') }}">Mi perfil</a>
+        </div>
+        <h2>Finanzas</h2>
+        <div class="top-actions">
+            <a href="{{ url_for('agregar_movimiento') }}" class="btn">+ Nuevo movimiento</a>
+            <a href="{{ url_for('exportar_excel') }}" class="btn" style="background:#43a047;">Exportar Excel</a>
+        </div>
+        <div class="summary">
+            <div>Ingresos: <span style="color:#2e7d32;">${{ '{:,.0f}'.format(ingresos) }}</span></div>
+            <div>Gastos: <span style="color:#c62828;">${{ '{:,.0f}'.format(gastos) }}</span></div>
+            <div>Balance: <span style="color:#005b96;">${{ '{:,.0f}'.format(balance) }}</span></div>
+        </div>
+        <table>
+            <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Monto</th>
+            </tr>
+            {% for m in movimientos %}
+            <tr>
+                <td>{{ m.fecha.strftime('%d-%m-%Y') }}</td>
+                <td>{{ m.tipo }}</td>
+                <td>{{ m.descripcion }}</td>
+                <td>${{ '{:,.0f}'.format(m.monto) }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
