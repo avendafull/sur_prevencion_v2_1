@@ -63,3 +63,9 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
+
+@app.route('/clientes')
+@login_required
+def clientes():
+    return render_template('clientes.html')
