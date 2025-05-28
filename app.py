@@ -83,7 +83,7 @@ def logout():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', user=current_user)
 
 @app.route('/clientes')
 @login_required
@@ -146,4 +146,4 @@ def agregar_movimiento():
 @app.route('/perfil')
 @login_required
 def perfil():
-    return render_template('perfil.html')
+    return render_template('perfil.html', user=current_user)
