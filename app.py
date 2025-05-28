@@ -1,33 +1,39 @@
-
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import LoginManager, login_required, login_user, logout_user, current_user, UserMixin
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
-from datetime import datetime
 import os
 
-from models import db, TrabajadorHospedado
+app = Flask(__name__, instance_relative_config=True)
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'mikeyclave'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/surprevencion.db'
-app.config['UPLOAD_FOLDER'] = 'instance'
+# Asegura que la carpeta 'instance' exista
+os.makedirs(app.instance_path, exist_ok=True)
 
-db.init_app(app)
+# Configura la base de datos
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.instance_path, 'surprevencion.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-login_manager = LoginManager()
-login_manager.login_view = 'login'
-login_manager.init_app(app)
+db = SQLAlchemy(app)
 
-class User(UserMixin, db.Model):
+# Modelos
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    username = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
+class Movimiento(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tipo = db.Column(db.String(50))
+    monto = db.Column(db.Float)
+    descripcion = db.Column(db.String(200))
 
+# Crear tablas y usuario admin si no existen
+with app.app_context():
+    db.create_all()
+    if not User.query.filter_by(username='admin@surprevencion.cl').first():
+        admin = User(username='admin@surprevencion.cl', password='1234')
+        db.session.add(admin)
+        db.session.commit()
+
+# Rutas
 @app.route('/')
 def home():
     return render_template('home.html')
@@ -39,63 +45,31 @@ def login():
         password = request.form['password']
         user = User.query.filter_by(username=username, password=password).first()
         if user:
-            login_user(user)
-            return redirect(url_for('hospedaje'))
+            return redirect(url_for('perfil'))
         else:
-            flash('Usuario o contraseña inválido')
+            return 'Usuario o contraseña incorrectos', 401
     return render_template('login.html')
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('home'))
+@app.route('/perfil')
+def perfil():
+    return render_template('perfil.html')
 
-@app.route('/hospedaje', methods=['GET', 'POST'])
-@login_required
-def hospedaje():
+@app.route('/finanzas')
+def finanzas():
+    movimientos = Movimiento.query.all()
+    return render_template('finanzas.html', movimientos=movimientos)
+
+@app.route('/agregar_movimiento', methods=['GET', 'POST'])
+def agregar_movimiento():
     if request.method == 'POST':
-        nombre = request.form['nombre']
-        fecha_llegada = datetime.strptime(request.form['fecha_llegada'], '%Y-%m-%d').date()
-        fecha_salida = datetime.strptime(request.form['fecha_salida'], '%Y-%m-%d').date()
-        valor_diario = float(request.form['valor_diario'])
-        con_iva = 'con_iva' in request.form
-
-        dias = (fecha_salida - fecha_llegada).days
-        subtotal = valor_diario * dias
-        total = subtotal * 1.19 if con_iva else subtotal
-
-        archivo = request.files['archivo']
-        filename = None
-        if archivo and archivo.filename != '':
-            filename = secure_filename(archivo.filename)
-            archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
-        nuevo = TrabajadorHospedado(
-            nombre=nombre,
-            fecha_llegada=fecha_llegada,
-            fecha_salida=fecha_salida,
-            valor_diario=valor_diario,
-            con_iva=con_iva,
-            total=total,
-            archivo=filename
-        )
-        db.session.add(nuevo)
+        tipo = request.form['tipo']
+        monto = float(request.form['monto'])
+        descripcion = request.form['descripcion']
+        nuevo_mov = Movimiento(tipo=tipo, monto=monto, descripcion=descripcion)
+        db.session.add(nuevo_mov)
         db.session.commit()
-        flash('Registro guardado correctamente.')
-        return redirect(url_for('hospedaje'))
-
-    return render_template('hospedaje/hospedaje.html')
+        return redirect(url_for('finanzas'))
+    return render_template('agregar_movimiento.html')
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-    
-    # Crear usuario admin si no existe
-    if not User.query.filter_by(username="admin@surprevencion.cl").first():
-        nuevo = User(username="admin@surprevencion.cl", password="1234")
-        db.session.add(nuevo)
-        db.session.commit()
-        print("Usuario admin creado")
-
     app.run(debug=True)
