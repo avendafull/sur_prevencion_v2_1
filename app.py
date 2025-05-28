@@ -153,3 +153,24 @@ def cambiar_contrasena():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html') if os.path.exists(os.path.join('templates', 'dashboard.html')) else 'Dashboard (en construcción)'
+
+@app.route('/cotizaciones')
+@login_required
+def cotizaciones():
+    return render_template('cotizaciones.html') if os.path.exists(os.path.join('templates', 'cotizaciones.html')) else 'Cotizaciones (en construcción)'
+
+@app.route('/agregar_cliente')
+@login_required
+def agregar_cliente():
+    return 'Formulario para agregar cliente (en construcción)'
+
+@app.route('/exportar_excel')
+@login_required
+def exportar_excel():
+    return 'Exportar Excel (en construcción)'
