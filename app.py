@@ -1,3 +1,4 @@
+import datetime
 
 from flask import Flask, render_template, redirect, url_for, request, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -14,6 +15,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
+# Crear las tablas si no existen
+with app.app_context():
+    db.create_all()
+
 login_manager.login_view = 'login'
 
 class User(UserMixin, db.Model):
@@ -119,6 +124,57 @@ def finanzas():
 @login_required
 def perfil():
     return render_template('perfil.html')
+
+
+@app.route('/clientes')
+@login_required
+def clientes():
+    # Datos simulados por ahora
+    clientes = [
+        {'nombre': 'Empresa A', 'rut': '12.345.678-9', 'contacto': 'Juan Pérez', 'direccion': 'Calle Falsa 123'},
+        {'nombre': 'Empresa B', 'rut': '98.765.432-1', 'contacto': 'Ana Gómez', 'direccion': 'Avenida Siempre Viva 742'}
+    ]
+    return render_template('clientes.html', clientes=clientes)
+
+@app.route('/finanzas')
+@login_required
+def finanzas():
+    # Datos simulados por ahora
+    movimientos = [
+        {'fecha': datetime.datetime.now(), 'tipo': 'Ingreso', 'descripcion': 'Pago cliente', 'monto': 500000},
+        {'fecha': datetime.datetime.now(), 'tipo': 'Gasto', 'descripcion': 'Compra insumos', 'monto': 150000}
+    ]
+    ingresos = sum(m['monto'] for m in movimientos if m['tipo'] == 'Ingreso')
+    gastos = sum(m['monto'] for m in movimientos if m['tipo'] == 'Gasto')
+    balance = ingresos - gastos
+    return render_template('finanzas.html', movimientos=movimientos, ingresos=ingresos, gastos=gastos, balance=balance)
+
+@app.route('/perfil', methods=['GET', 'POST'])
+@login_required
+def perfil():
+    if request.method == 'POST':
+        current_user.nombre = request.form['nombre']
+        current_user.telefono = request.form['telefono']
+        db.session.commit()
+        flash('Perfil actualizado correctamente.')
+    return render_template('perfil.html', usuario=current_user)
+
+@app.route('/cambiar_contrasena', methods=['POST'])
+@login_required
+def cambiar_contrasena():
+    actual = request.form['actual']
+    nueva = request.form['nueva']
+    repetir = request.form['repetir']
+    if not check_password_hash(current_user.password, actual):
+        flash('La contraseña actual no es correcta.')
+    elif nueva != repetir:
+        flash('Las nuevas contraseñas no coinciden.')
+    else:
+        current_user.password = generate_password_hash(nueva)
+        db.session.commit()
+        flash('Contraseña cambiada exitosamente.')
+    return redirect(url_for('perfil'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
