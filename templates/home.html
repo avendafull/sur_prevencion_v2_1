@@ -1,5 +1,9 @@
-<!doctype html>
-<html lang="es">
-  <head><meta charset="utf-8"><title>Inicio</title></head>
-  <body><h1>Bienvenido al sistema</h1></body>
-</html>
+
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+  <div class="text-center">
+    <h1 class="mt-4">Bienvenido a SUR Prevención</h1>
+    <p>Selecciona una opción del menú para comenzar.</p>
+  </div>
+{% endblock %}
