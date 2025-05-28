@@ -110,11 +110,6 @@ def agregar_cotizacion():
 def agregar_movimiento():
     return render_template('agregar_movimiento.html')
 
-@app.route('/finanzas')
-@login_required
-def finanzas():
-    return render_template('finanzas.html')
-
 @app.route('/perfil')
 @login_required
 def perfil():
