@@ -90,4 +90,12 @@ def hospedaje():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
+    
+    # Crear usuario admin si no existe
+    if not User.query.filter_by(username="admin@surprevencion.cl").first():
+        nuevo = User(username="admin@surprevencion.cl", password="1234")
+        db.session.add(nuevo)
+        db.session.commit()
+        print("Usuario admin creado")
+
     app.run(debug=True)

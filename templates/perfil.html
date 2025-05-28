@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil | Sur Prevención</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7fafd; margin: 0; }
+        .container { max-width: 440px; margin: 44px auto; background: #fff; border-radius: 14px; padding: 30px 40px; box-shadow: 0 0 12px #bbdefb; }
+        h2 { color: #005b96; }
+        form input { width: 100%; padding: 9px; margin: 10px 0; border: 1px solid #b0bec5; border-radius: 5px; }
+        button { background: #005b96; color: #fff; border: none; border-radius: 5px; padding: 10px 16px; width: 100%; margin-top: 8px; }
+        .nav { margin-bottom: 18px; }
+        .nav a { text-decoration: none; color: #005b96; margin-right: 18px; font-weight: bold; }
+        .flash { color: #388e3c; margin-bottom: 8px; }
+        .cambiar { margin-top: 24px; border-top: 1px solid #e0e0e0; padding-top: 20px;}
+        label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav">
+            <a href="{{ url_for('dashboard') }}">← Volver al panel</a>
+        </div>
+        <h2>Mi perfil</h2>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="flash">{{ messages[0] }}</div>
+          {% endif %}
+        {% endwith %}
+        <form method="post">
+            <label>Nombre</label>
+            <input type="text" name="nombre" value="{{ usuario.nombre }}" required>
+            <label>Teléfono</label>
+            <input type="text" name="telefono" value="{{ usuario.telefono }}">
+            <button type="submit">Guardar cambios</button>
+        </form>
+        <div class="cambiar">
+            <h4>Cambiar contraseña</h4>
+            <form method="post" action="{{ url_for('cambiar_contrasena') }}">
+                <input type="password" name="actual" placeholder="Contraseña actual" required>
+                <input type="password" name="nueva" placeholder="Nueva contraseña" required>
+                <input type="password" name="repetir" placeholder="Repite nueva contraseña" required>
+                <button type="submit">Cambiar contraseña</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
