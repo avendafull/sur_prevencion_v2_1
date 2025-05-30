@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-3">
+    <div class="col">
+      <h3>Pensionistas</h3>
+    </div>
+    <div class="col-auto">
+      <a href="{{ url_for('nuevo_pensionista') }}" class="btn btn-success">
+        <i class="bi bi-plus"></i> Nuevo Pensionista
+      </a>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>Nombre</th>
+          <th>Empresa</th>
+          <th>Habitación</th>
+          <th>Fecha Ingreso</th>
+          <th>Monto Mensual</th>
+          <th>Costo Alimentación</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pensionistas %}
+        <tr>
+          <td>{{ p.nombre }}</td>
+          <td>{{ p.empresa }}</td>
+          <td>{{ p.habitacion }}</td>
+          <td>{{ p.fecha_ingreso.strftime('%d/%m/%Y') if p.fecha_ingreso else '' }}</td>
+          <td>${{ p.monto_mensual|format_miles }}</td>
+          <td>${{ p.costo_alimentacion|format_miles }}</td>
+          <td class="text-center">
+            <a href="{{ url_for('editar_pensionista', id=p.id) }}" class="btn btn-sm btn-warning">Editar</a>
+            <a href="{{ url_for('gastos_extra', pensionista_id=p.id) }}" class="btn btn-sm btn-info">Gastos Extra</a>
+            <a href="{{ url_for('pensionista_borrar', id=p.id) }}" class="btn btn-sm btn-danger"
+              onclick="return confirm('¿Eliminar pensionista?')">Borrar</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center text-muted">No hay pensionistas registrados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

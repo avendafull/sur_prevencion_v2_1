@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-2">
+    <div class="col">
+      <h3>Gastos Extra de: <b>{{ pensionista.nombre }}</b></h3>
+      <p><b>Habitación:</b> {{ pensionista.habitacion }} | <b>Empresa:</b> {{ pensionista.empresa }}</p>
+    </div>
+    <div class="col-auto">
+      <a href="{{ url_for('gasto_extra_form', pensionista_id=pensionista.id) }}" class="btn btn-success mb-2">
+        <i class="bi bi-plus"></i> Nuevo Gasto Extra
+      </a>
+      <a href="{{ url_for('pensionistas') }}" class="btn btn-secondary mb-2">Volver a Pensionistas</a>
+    </div>
+  </div>
+  <!-- Filtros por fecha y exportar -->
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-auto">
+      <label for="start_date" class="form-label">Desde:</label>
+      <input type="date" class="form-control" name="start_date" id="start_date"
+        value="{{ selected_start_date }}">
+    </div>
+    <div class="col-auto">
+      <label for="end_date" class="form-label">Hasta:</label>
+      <input type="date" class="form-control" name="end_date" id="end_date"
+        value="{{ selected_end_date }}">
+    </div>
+    <div class="col-auto align-self-end">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+    <div class="col-auto align-self-end">
+      <a class="btn btn-outline-success"
+        href="{{ url_for('exportar_gastos_excel', pensionista_id=pensionista.id, start_date=selected_start_date, end_date=selected_end_date) }}">
+        Exportar a Excel
+      </a>
+    </div>
+  </form>
+  <!-- Tabla de gastos extra -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>Fecha</th>
+          <th>Descripción</th>
+          <th>Monto</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for gasto in gastos_mes %}
+        <tr>
+          <td>{{ gasto.fecha.strftime('%d/%m/%Y') if gasto.fecha else '' }}</td>
+          <td>{{ gasto.descripcion }}</td>
+          <td>${{ gasto.monto|format_miles }}</td>
+          <td class="text-center">
+            <a href="{{ url_for('gasto_extra_editar', gasto_id=gasto.id) }}" class="btn btn-sm btn-warning">Editar</a>
+            <a href="{{ url_for('gasto_extra_borrar', gasto_id=gasto.id) }}" class="btn btn-sm btn-danger"
+              onclick="return confirm('¿Eliminar gasto extra?')">Borrar</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="text-center text-muted">No hay gastos extra en el rango seleccionado.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" class="text-end"><strong>Total en rango:</strong></td>
+          <td colspan="2"><strong>${{ total_mes|format_miles }}</strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <!-- Resumen por día -->
+  {% if resumen_por_dia %}
+  <div class="mt-4">
+    <h5>Resumen por Día:</h5>
+    <ul>
+      {% for fecha, total in resumen_por_dia.items() %}
+      <li><b>{{ fecha }}:</b> ${{ total|format_miles }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

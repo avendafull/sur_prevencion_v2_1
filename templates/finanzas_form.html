@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 col-lg-6">
+      <h3>{{ 'Editar' if finanza else 'Nueva' }} Transacción Financiera</h3>
+      <form method="POST" action="">
+        <div class="mb-3">
+          <label class="form-label">Tipo de Movimiento</label>
+          <select class="form-control" name="tipo" id="tipo" required onchange="mostrarCamposCliente()">
+            <option value="ingreso" {% if finanza and finanza.tipo == 'ingreso' %}selected{% endif %}>Ingreso</option>
+            <option value="egreso" {% if finanza and finanza.tipo == 'egreso' %}selected{% endif %}>Egreso</option>
+          </select>
+        </div>
+        <div class="mb-3" id="campoCliente" style="display: none;">
+          <label class="form-label">Cliente que paga</label>
+          <select name="cliente_id" class="form-control">
+            <option value="">--- Seleccionar cliente ---</option>
+            {% for cliente in clientes %}
+              <option value="{{ cliente.id }}"
+                {% if finanza and finanza.cliente_id == cliente.id %}selected{% endif %}>
+                {{ cliente.nombre }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Concepto</label>
+          <input type="text" name="concepto" class="form-control"
+                 required value="{{ finanza.concepto if finanza else '' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Monto</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" name="monto" step="0.01" class="form-control"
+                   required value="{{ finanza.monto if finanza else '' }}">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Fecha</label>
+          <input type="date" name="fecha" class="form-control"
+                 required value="{{ finanza.fecha.strftime('%Y-%m-%d') if finanza and finanza.fecha else '' }}">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Pensionista (si aplica)</label>
+          <select name="pensionista_id" class="form-control">
+            <option value="">--- Ninguno ---</option>
+            {% for p in pensionistas %}
+              <option value="{{ p.id }}"
+                {% if finanza and finanza.pensionista_id == p.id %}selected{% endif %}>
+                {{ p.nombre }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Forma de Pago</label>
+          <select name="forma_pago" class="form-control" id="forma_pago" required onchange="mostrarProveedor()">
+            <option value="contado" {% if finanza and finanza.forma_pago == 'contado' %}selected{% endif %}>Contado</option>
+            <option value="credito" {% if finanza and finanza.forma_pago == 'credito' %}selected{% endif %}>Crédito</option>
+          </select>
+        </div>
+        <div class="mb-3" id="campoProveedor" style="display: none;">
+          <label class="form-label">Proveedor (si egreso a crédito)</label>
+          <input type="text" name="proveedor" class="form-control"
+                 value="{{ finanza.proveedor if finanza else '' }}">
+        </div>
+        <div class="mb-3 form-check">
+          <input type="checkbox" class="form-check-input" name="pagado" id="pagado"
+                 {% if finanza and finanza.pagado %}checked{% endif %}>
+          <label class="form-check-label" for="pagado">Pagado</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a href="{{ url_for('finanzas') }}" class="btn btn-secondary">Volver</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Mostrar campo cliente solo si es ingreso
+  function mostrarCamposCliente() {
+    let tipo = document.getElementById('tipo').value;
+    document.getElementById('campoCliente').style.display = (tipo === 'ingreso') ? 'block' : 'none';
+  }
+  // Mostrar proveedor solo si es egreso a crédito
+  function mostrarProveedor() {
+    let tipo = document.getElementById('tipo').value;
+    let forma_pago = document.getElementById('forma_pago').value;
+    document.getElementById('campoProveedor').style.display = (tipo === 'egreso' && forma_pago === 'credito') ? 'block' : 'none';
+  }
+  // Ejecutar al cargar
+  document.addEventListener('DOMContentLoaded', function() {
+    mostrarCamposCliente();
+    mostrarProveedor();
+  });
+</script>
+{% endblock %}

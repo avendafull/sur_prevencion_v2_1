@@ -1,0 +1,98 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary mb-3 shadow">
+        <div class="card-body text-center">
+          <h5 class="card-title">Clientes</h5>
+          <h2 class="card-text">{{ clientes_count }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success mb-3 shadow">
+        <div class="card-body text-center">
+          <h5 class="card-title">Cotizaciones</h5>
+          <h2 class="card-text">{{ cotizaciones_count }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info mb-3 shadow">
+        <div class="card-body text-center">
+          <h5 class="card-title">Pensionistas</h5>
+          <h2 class="card-text">{{ pensionistas_count }}</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-warning mb-3 shadow">
+        <div class="card-body text-center">
+          <h5 class="card-title">Saldo Total</h5>
+          <h2 class="card-text">{{ saldo_total|format_miles }}</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ingresos y Egresos -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card mb-3 shadow">
+        <div class="card-header bg-success text-white">Ingresos</div>
+        <div class="card-body">
+          <h3 class="text-success">{{ ingresos|format_miles }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card mb-3 shadow">
+        <div class="card-header bg-danger text-white">Egresos Pagados</div>
+        <div class="card-body">
+          <h3 class="text-danger">{{ egresos_pagados|format_miles }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card mb-3 shadow">
+        <div class="card-header bg-secondary text-white">Egresos Pendientes</div>
+        <div class="card-body">
+          <h3 class="text-secondary">{{ egresos_pendientes|format_miles }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen de deuda por proveedor -->
+  <div class="row mb-4">
+    <div class="col-lg-8">
+      <h5 class="mt-4">Deuda Pendiente por Proveedor</h5>
+      <table class="table table-bordered table-striped w-auto shadow">
+        <thead>
+          <tr>
+            <th>Proveedor</th>
+            <th class="text-end">Deuda Pendiente</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for proveedor, deuda in deudas_proveedores %}
+          <tr>
+            <td>{{ proveedor }}</td>
+            <td class="text-end">{{ deuda|format_miles }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="2" class="text-center text-muted">Sin deudas pendientes</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Aquí puedes agregar más bloques, gráficos, etc. -->
+
+</div>
+{% endblock %}

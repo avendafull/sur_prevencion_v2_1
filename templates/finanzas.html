@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <!-- Panel resumen -->
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <div class="card bg-success text-white mb-2">
+        <div class="card-body">
+          <h5 class="card-title mb-0">Ingresos</h5>
+          <h3>${{ total_ingresos|format_miles }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-danger text-white mb-2">
+        <div class="card-body">
+          <h5 class="card-title mb-0">Egresos</h5>
+          <h3>${{ total_egresos|format_miles }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card bg-info text-white mb-2">
+        <div class="card-body">
+          <h5 class="card-title mb-0">Saldo Neto</h5>
+          <h3>${{ saldo|format_miles }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col">
+      <h3>Transacciones Financieras</h3>
+    </div>
+    <div class="col-auto">
+      <a href="{{ url_for('nueva_finanza') }}" class="btn btn-success">
+        <i class="bi bi-plus"></i> Nueva Transacción
+      </a>
+    </div>
+  </div>
+
+  <!-- Filtros avanzados -->
+  <form method="get" class="row g-3 mb-4 align-items-end">
+    <div class="col-auto">
+      <label for="filtro_tipo" class="form-label">Tipo:</label>
+      <select name="filtro_tipo" id="filtro_tipo" class="form-select">
+        <option value="" {% if not request.args.get('filtro_tipo') %}selected{% endif %}>Todos</option>
+        <option value="ingreso" {% if request.args.get('filtro_tipo') == 'ingreso' %}selected{% endif %}>Ingreso</option>
+        <option value="egreso" {% if request.args.get('filtro_tipo') == 'egreso' %}selected{% endif %}>Egreso</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <label for="filtro_pagado" class="form-label">Estado de Pago:</label>
+      <select name="filtro_pagado" id="filtro_pagado" class="form-select">
+        <option value="" {% if not request.args.get('filtro_pagado') %}selected{% endif %}>Todos</option>
+        <option value="pagado" {% if request.args.get('filtro_pagado') == 'pagado' %}selected{% endif %}>Pagado</option>
+        <option value="pendiente" {% if request.args.get('filtro_pagado') == 'pendiente' %}selected{% endif %}>Pendiente</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <label for="filtro_desde" class="form-label">Desde:</label>
+      <input type="date" id="filtro_desde" name="filtro_desde" class="form-control" value="{{ request.args.get('filtro_desde', '') }}">
+    </div>
+    <div class="col-auto">
+      <label for="filtro_hasta" class="form-label">Hasta:</label>
+      <input type="date" id="filtro_hasta" name="filtro_hasta" class="form-control" value="{{ request.args.get('filtro_hasta', '') }}">
+    </div>
+    <div class="col-auto">
+      <label for="filtro_proveedor" class="form-label">Proveedor:</label>
+      <input type="text" id="filtro_proveedor" name="filtro_proveedor" class="form-control" placeholder="Proveedor" value="{{ request.args.get('filtro_proveedor', '') }}">
+    </div>
+    <div class="col-auto">
+      <label for="filtro_pensionista" class="form-label">Pensionista:</label>
+      <select name="filtro_pensionista" id="filtro_pensionista" class="form-select">
+        <option value="" {% if not request.args.get('filtro_pensionista') %}selected{% endif %}>Todos</option>
+        {% for p in pensionistas_lista %}
+          <option value="{{ p.id }}" {% if request.args.get('filtro_pensionista') == p.id|string %}selected{% endif %}>{{ p.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+      <a href="{{ url_for('finanzas') }}" class="btn btn-secondary">Limpiar</a>
+    </div>
+    <div class="col-auto">
+      <button type="submit" name="exportar" value="excel" class="btn btn-outline-success">
+        <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
+      </button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+      <thead class="table-primary">
+        <tr>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Concepto</th>
+          <th class="text-end">Monto</th>
+          <th>Pensionista</th>
+          <th>Proveedor</th>
+          <th>Forma de Pago</th>
+          <th>Pagado</th>
+          <th class="text-center">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in finanzas %}
+        <tr>
+          <td>{{ f.fecha.strftime('%d/%m/%Y') if f.fecha else '' }}</td>
+          <td>
+            {% if f.tipo == 'ingreso' %}
+              <span class="badge bg-success">Ingreso</span>
+            {% elif f.tipo == 'egreso' %}
+              <span class="badge bg-danger">Egreso</span>
+            {% endif %}
+          </td>
+          <td>{{ f.concepto }}</td>
+          <td class="text-end">{{ f.monto|format_miles }}</td>
+          <td>{{ f.pensionista.nombre if f.pensionista else '' }}</td>
+          <td>{{ f.proveedor or '' }}</td>
+          <td>
+            {% if f.forma_pago == 'contado' %}
+              <span class="badge bg-info text-dark">Contado</span>
+            {% elif f.forma_pago == 'credito' %}
+              <span class="badge bg-warning text-dark">Crédito</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            {% if f.pagado %}
+              <span class="badge bg-success">Pagado</span>
+            {% else %}
+              <span class="badge bg-secondary">Pendiente</span>
+            {% endif %}
+          </td>
+          <td class="text-center">
+            <a href="{{ url_for('editar_finanza', id=f.id) }}" class="btn btn-sm btn-warning">Editar</a>
+            <a href="{{ url_for('finanza_borrar', id=f.id) }}" class="btn btn-sm btn-danger"
+               onclick="return confirm('¿Eliminar transacción?')">Borrar</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="text-center text-muted">No hay transacciones registradas.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
