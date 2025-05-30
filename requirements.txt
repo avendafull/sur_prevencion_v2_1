@@ -1,8 +1,0 @@
-Flask
-Flask-Login
-Flask-SQLAlchemy
-Flask-WTF
-pandas
-openpyxl
-xhtml2pdf
-gunicorn
